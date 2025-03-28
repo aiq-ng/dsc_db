@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${APP_PORT:-8080}:8000"  # Use APP_PORT from .env, default to 8000 if not set
+      - "${APP_PORT:-8090}:8090"  # Use APP_PORT from .env, default to 8090
     env_file:
       - .env  # Load variables from .env
     depends_on:

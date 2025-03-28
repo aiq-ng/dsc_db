@@ -41,6 +41,10 @@ class Database:
         async with self.pool.acquire() as connection:
             return await connection.fetchrow(query, *args)
 
+    async def fetchval(self, query: str, *args):
+        async with self.pool.acquire() as connection:
+            return await connection.fetchval(query, *args)
+
 db = Database()
 
 async def create_db_pool():

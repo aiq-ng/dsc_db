@@ -6,7 +6,8 @@ from typing import Optional, Dict
 # Pydantic Models
 class TargetBase(BaseModel):
     target_name: str
-    number: str
+    target_number: str
+    file_number: str
     folder: Optional[str] = None
     offence_id: int
     operator_id: int
@@ -20,7 +21,8 @@ class TargetCreate(TargetBase):
 
 class TargetUpdate(BaseModel):
     target_name: Optional[str] = None
-    number: Optional[str] = None
+    target_number: Optional[str] = None
+    file_number: Optional[str] = None
     folder: Optional[str] = None
     offence_id: Optional[int] = None
     operator_id: Optional[int] = None

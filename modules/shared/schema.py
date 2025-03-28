@@ -47,7 +47,8 @@ CREATE_TARGETS_TABLE = """
     CREATE TABLE IF NOT EXISTS targets (
         id SERIAL PRIMARY KEY,
         target_name VARCHAR(255) NOT NULL,
-        number VARCHAR(100) UNIQUE NOT NULL,
+        file_number VARCHAR(100) UNIQUE NOT NULL, -- Renamed from 'number'
+        target_number VARCHAR(100), -- Added target_number
         folder VARCHAR(255),
         offence_id INTEGER NOT NULL REFERENCES offences(id) ON DELETE RESTRICT,
         operator_id INTEGER NOT NULL REFERENCES operators(id) ON DELETE RESTRICT,
@@ -55,14 +56,17 @@ CREATE_TARGETS_TABLE = """
         origin VARCHAR(255),
         target_date DATE NOT NULL,
         metadata JSONB DEFAULT '{}',
+        flagged BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT chk_type CHECK (type IN ('Person', 'Organization', 'Vehicle', 'Other'))
+        CONSTRAINT chk_type CHECK (type IN ('New', 'Modification', 'Renewal', 'Other'))
     );
-    CREATE INDEX IF NOT EXISTS idx_targets_number ON targets(number);
+    CREATE INDEX IF NOT EXISTS idx_targets_file_number ON targets(file_number); --renamed index
+    CREATE INDEX IF NOT EXISTS idx_targets_target_number ON targets(target_number); --added index
     CREATE INDEX IF NOT EXISTS idx_targets_offence_id ON targets(offence_id);
     CREATE INDEX IF NOT EXISTS idx_targets_operator_id ON targets(operator_id);
     CREATE INDEX IF NOT EXISTS idx_targets_target_date ON targets(target_date);
+    CREATE INDEX IF NOT EXISTS idx_targets_flagged ON targets(flagged);
 """
 
 # List of table creation queries in order (respecting foreign key dependencies)

@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS operators (
 CREATE TABLE IF NOT EXISTS targets (
         id SERIAL PRIMARY KEY,
         target_name VARCHAR(255) NOT NULL,
-        number VARCHAR(100) UNIQUE NOT NULL,
+        file_number VARCHAR(100) UNIQUE NOT NULL, -- Renamed from 'number'
+        target_number VARCHAR(100), -- Added target_number
         folder VARCHAR(255),
         offence_id INTEGER NOT NULL REFERENCES offences(id) ON DELETE RESTRICT,
         operator_id INTEGER NOT NULL REFERENCES operators(id) ON DELETE RESTRICT,
@@ -51,7 +52,8 @@ CREATE TABLE IF NOT EXISTS targets (
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT chk_type CHECK (type IN ('Person', 'Organization', 'Vehicle', 'Other'))
     );
-    CREATE INDEX idx_targets_number ON targets(number);
-    CREATE INDEX idx_targets_offence_id ON targets(offence_id);
-    CREATE INDEX idx_targets_operator_id ON targets(operator_id);
-    CREATE INDEX idx_targets_target_date ON targets(target_date);
+    CREATE INDEX IF NOT EXISTS idx_targets_file_number ON targets(file_number); --renamed index
+    CREATE INDEX IF NOT EXISTS idx_targets_target_number ON targets(target_number); --added index
+    CREATE INDEX IF NOT EXISTS idx_targets_offence_id ON targets(offence_id);
+    CREATE INDEX IF NOT EXISTS idx_targets_operator_id ON targets(operator_id);
+    CREATE INDEX IF NOT EXISTS idx_targets_target_date ON targets(target_date);
