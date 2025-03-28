@@ -44,12 +44,16 @@ class TargetManager:
     async def get_all_targets(self, skip: int = 0, limit: int = 100):
             # Query for paginated results
             query = """
-                SELECT t.*, o.name as offence_name, op.operator_name 
-                FROM targets t
-                LEFT JOIN offences o ON t.offence_id = o.id
-                LEFT JOIN operators op ON t.operator_id = op.id
-                ORDER BY t.created_at DESC
-                OFFSET $1 LIMIT $2
+            SELECT
+                t.id, t.target_name, t.file_number, t.target_number, t.folder, 
+                o.name as offence_name, op.operator_name, 
+                t.type, t.origin, t.target_date, t.metadata, t.flagged,
+                t.created_at, t.updated_at
+            FROM targets t
+            LEFT JOIN offences o ON t.offence_id = o.id
+            LEFT JOIN operators op ON t.operator_id = op.id
+            ORDER BY t.created_at DESC
+            OFFSET $1 LIMIT $2
             """
             results = await db.fetch(query, skip, limit)
             
@@ -62,10 +66,11 @@ class TargetManager:
             targets = [{
                 "id": result["id"],
                 "target_name": result["target_name"],
+                "target_number": result["target_number"],
                 "file_number": result["file_number"],
                 "folder": result["folder"],
-                "offence_id": result["offence_id"],
-                "operator_id": result["operator_id"],
+                "offence_name": result["offence_name"],
+                "operator_name": result["operator_name"],
                 "type": result["type"],
                 "origin": result["origin"],
                 "target_date": result["target_date"],
@@ -160,7 +165,11 @@ class TargetManager:
 
         # Fetch paginated data
         query = f"""
-            SELECT t.*, o.name as offence_name, op.operator_name 
+            SELECT
+                t.id, t.target_name, t.file_number, t.target_number, t.folder, 
+                o.name as offence_name, op.operator_name, 
+                t.type, t.origin, t.target_date, t.metadata, t.flagged,
+                t.created_at, t.updated_at
             FROM targets t
             LEFT JOIN offences o ON t.offence_id = o.id
             LEFT JOIN operators op ON t.operator_id = op.id
@@ -178,8 +187,8 @@ class TargetManager:
             "target_number": result["target_number"],
             "file_number": result["file_number"],
             "folder": result["folder"],
-            "offence_id": result["offence_id"],
-            "operator_id": result["operator_id"],
+            "offence_name": result["offence_name"],
+            "operator_name": result["operator_name"],
             "type": result["type"],
             "origin": result["origin"],
             "target_date": result["target_date"],
