@@ -3,16 +3,26 @@ from typing import List
 from modules.targets.manager import TargetManager
 from modules.targets.models import TargetCreate, TargetUpdate, TargetResponse
 from modules.auth.router import get_current_user
+from modules.shared.websocket import broadcast_target
 
 router = APIRouter()
 target_manager = TargetManager()
 
 @router.post("/")
 async def create_target(target: TargetCreate, current_user=Depends(get_current_user)):
-    return await target_manager.create_target(
+    new_target = await target_manager.create_target(
         target.target_name, target.target_number, target.file_number, target.folder, target.offence_id,
         target.operator_id, target.type, target.origin, target.target_date, target.metadata
     )
+
+    # Ensure new_target is a dict by converting Record if necessary
+    if isinstance(new_target, dict):
+        await broadcast_target(new_target)
+    else:
+        # Assuming _format_target exists in manager.py to convert Record to dict
+        target_dict = target_manager._format_target(new_target)
+        await broadcast_target(target_dict)
+    return new_target
 
 @router.get("/{target_id}")
 async def get_target(target_id: int, current_user=Depends(get_current_user)):

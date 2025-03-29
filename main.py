@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from modules.auth.router import router as auth_router
@@ -8,6 +8,7 @@ from modules.initial_data.router import router as initial_data_router
 from modules.shared.db import db, create_db_pool, close_db_pool
 from modules.shared.seed import seed_data
 from modules.shared.schema import TABLES  # Import TABLES from schema.py
+from modules.shared.websocket import websocket_endpoint
 
 app = FastAPI(title="Modular FastAPI Application")
 
@@ -25,6 +26,11 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(targets_router, prefix="/targets", tags=["targets"])
 app.include_router(initial_data_router, prefix="/initial-data", tags=["initial-data"])
+
+app.websocket("/ws/targets")(websocket_endpoint)  # Register WebSocket endpoint
+
+
+
 
 # Exception handler
 @app.exception_handler(Exception)
