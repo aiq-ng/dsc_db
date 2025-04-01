@@ -12,7 +12,7 @@ target_manager = TargetManager()
 async def create_target(target: TargetCreate, current_user=Depends(get_current_user)):
     new_target = await target_manager.create_target(
         target.target_name, target.target_number, target.file_number, target.folder, target.offence_id,
-        target.operator_id, target.type, target.origin, target.target_date, target.metadata
+        target.operator_id, target.type, target.origin, target.target_date, target.metadata, target.flagged, target.threat_level
     )
 
     # Ensure new_target is a dict by converting Record if necessary
@@ -76,3 +76,4 @@ async def flag_target(target_id: int, flagged: bool = True, current_user=Depends
     return await target_manager.flag_target(target_id, flagged)
 
 
+ 

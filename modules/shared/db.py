@@ -14,7 +14,7 @@ class Database:
                     user=os.getenv("POSTGRES_USER", "postgres"),
                     password=os.getenv("POSTGRES_PASSWORD", "password"),
                     database=os.getenv("POSTGRES_DB", "dsc_db"),
-                    host=os.getenv("POSTGRES_HOST", "localhost"),
+                    host=os.getenv("POSTGRES_HOST", "db"),
                     port=int(os.getenv("POSTGRES_PORT", "5432"))
                 )
                 print("Database connection established")
