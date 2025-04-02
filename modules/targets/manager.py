@@ -124,16 +124,15 @@ class TargetManager:
 
         where_clause = " AND ".join(conditions) if conditions else "TRUE"
 
-        # Count total matching records
         count_query = f"SELECT COUNT(*) FROM targets WHERE {where_clause}"
+
         total = await db.fetchval(count_query, *params[:param_count-1])
 
-        # Fetch paginated data
         query = f"""
             SELECT
                 t.id, t.target_name, t.file_number, t.target_number, t.folder, 
                 o.name as offence_name, op.operator_name, 
-                t.type, t.origin, t.target_date, t.metadata, t.flagged,
+                t.type, t.origin, t.target_date, t.metadata, t.threat_level, t.flagged,  
                 t.created_at, t.updated_at
             FROM targets t
             LEFT JOIN offences o ON t.offence_id = o.id
@@ -142,10 +141,13 @@ class TargetManager:
             ORDER BY t.created_at DESC
             OFFSET ${param_count} LIMIT ${param_count + 1}
         """
-        params.extend([skip, limit])  # Add pagination parameters
-        results = await db.fetch(query, *params)
 
-        # Build response data
+        print("query", query)
+
+        params.extend([skip, limit])
+        results = await db.fetch(query, *params)
+        print('result', results)  # Debugging
+
         data = [{
             "id": result["id"],
             "target_name": result["target_name"],
@@ -156,14 +158,14 @@ class TargetManager:
             "operator_name": result["operator_name"],
             "type": result["type"],
             "origin": result["origin"],
-            "target_date": result["target_date"],
+            "target_date": result["target_date"].isoformat(),  # Convert to string
             "metadata": json.loads(result["metadata"]),
+            "threat_level": result["threat_level"],
             "flagged": result["flagged"],
             "created_at": result["created_at"].isoformat(),
             "updated_at": result["updated_at"].isoformat()
         } for result in results]
 
-        # Calculate next and previous page URLs
         base_url = f"/targets/search/?target_name={target_name or ''}&number={target_number or ''}"
         next_page = f"{base_url}&skip={skip + limit}&limit={limit}" if skip + limit < total else None
         previous_page = f"{base_url}&skip={max(0, skip - limit)}&limit={limit}" if skip > 0 else None
@@ -174,7 +176,8 @@ class TargetManager:
             "next_page": next_page,
             "previous_page": previous_page
         }
-    
+
+
     async def flag_target(self, target_id: int, flagged: bool):
         query = """
             UPDATE targets 

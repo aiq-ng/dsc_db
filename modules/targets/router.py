@@ -11,7 +11,7 @@ target_manager = TargetManager()
 @router.post("/")
 async def create_target(target: TargetCreate, current_user=Depends(get_current_user)):
     new_target = await target_manager.create_target(
-        target.target_name, target.target_number, target.file_number, target.folder, target.offence_id,
+        target.target_name, target.file_number, target.target_number, target.folder, target.offence_id,
         target.operator_id, target.type, target.origin, target.target_date, target.metadata, target.flagged, target.threat_level
     )
 
@@ -58,6 +58,7 @@ async def search_targets(
     limit: int = 10,
     current_user=Depends(get_current_user)
 ):
+    print("target number", target_number)
     if not target_name and not target_number:
         raise HTTPException(status_code=400, detail="At least one search parameter (target_name or number) is required")
     return await target_manager.search_targets(target_name, target_number, skip, limit)
