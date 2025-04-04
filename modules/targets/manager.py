@@ -142,7 +142,6 @@ class TargetManager:
             OFFSET ${param_count} LIMIT ${param_count + 1}
         """
 
-        print("query", query)
 
         params.extend([skip, limit])
         results = await db.fetch(query, *params)

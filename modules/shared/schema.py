@@ -57,7 +57,7 @@ CREATE_TARGETS_TABLE = """
         target_date DATE NOT NULL,
         metadata JSONB DEFAULT '{}',
         flagged BOOLEAN DEFAULT FALSE,
-        threat_level VARCHAR(50) CHECK (threat_level IN ('High', 'Medium', 'Low')),  -- New column
+        threat_level VARCHAR(50) DEFAULT 'Low' CHECK (threat_level IN ('High', 'Medium', 'Low')),  -- New column
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT chk_type CHECK (type IN ('New', 'Modification', 'Renewal', 'Other'))
@@ -71,11 +71,23 @@ CREATE_TARGETS_TABLE = """
     CREATE INDEX IF NOT EXISTS idx_targets_threat_level ON targets(threat_level);  -- New index
 """
 
-# List of table creation queries in order (respecting foreign key dependencies)
+
+CREATE_SUGGESTIONS_TABLE = """
+    CREATE TABLE IF NOT EXISTS suggestions (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_suggestions_user_id ON suggestions(user_id);
+"""
+
 TABLES = [
     CREATE_USERS_TABLE,
     CREATE_USER_PROFILES_TABLE,
     CREATE_OFFENCES_TABLE,
     CREATE_OPERATORS_TABLE,
-    CREATE_TARGETS_TABLE
+    CREATE_TARGETS_TABLE,
+    CREATE_SUGGESTIONS_TABLE  # Add this
 ]

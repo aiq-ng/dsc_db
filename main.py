@@ -5,6 +5,7 @@ from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
 from modules.targets.router import router as targets_router
 from modules.initial_data.router import router as initial_data_router
+from modules.suggestions.router import router as suggestions_router
 from modules.shared.db import db, create_db_pool, close_db_pool
 from modules.shared.seed import seed_data
 from modules.shared.schema import TABLES  # Import TABLES from schema.py
@@ -26,6 +27,7 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(targets_router, prefix="/targets", tags=["targets"])
 app.include_router(initial_data_router, prefix="/initial-data", tags=["initial-data"])
+app.include_router(suggestions_router, prefix="/suggestions", tags=["suggestions"])
 
 app.websocket("/ws/targets")(websocket_endpoint)  # Register WebSocket endpoint
 
