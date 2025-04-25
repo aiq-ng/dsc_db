@@ -1,15 +1,16 @@
-from fastapi import FastAPI, WebSocket, Depends
+from fastapi import Depends, FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 from modules.auth.router import router as auth_router
-from modules.users.router import router as users_router
-from modules.targets.router import router as targets_router
 from modules.initial_data.router import router as initial_data_router
-from modules.suggestions.router import router as suggestions_router
-from modules.shared.db import db, create_db_pool, close_db_pool
-from modules.shared.seed import seed_data
+from modules.shared.db import close_db_pool, create_db_pool, db
 from modules.shared.schema import TABLES  # Import TABLES from schema.py
+from modules.shared.seed import seed_data
 from modules.shared.websocket import websocket_endpoint
+from modules.suggestions.router import router as suggestions_router
+from modules.targets.router import router as targets_router
+from modules.users.router import router as users_router
 
 app = FastAPI(title="Modular FastAPI Application")
 
@@ -26,21 +27,31 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(targets_router, prefix="/targets", tags=["targets"])
-app.include_router(initial_data_router, prefix="/initial-data", tags=["initial-data"])
-app.include_router(suggestions_router, prefix="/suggestions", tags=["suggestions"])
+app.include_router(
+    initial_data_router, prefix="/initial-data", tags=["initial-data"]
+)
+app.include_router(
+    suggestions_router, prefix="/suggestions", tags=["suggestions"]
+)
 
 app.websocket("/ws/targets")(websocket_endpoint)  # Register WebSocket endpoint
 
 
+@app.middleware("http")
+async def add_trailing_slash_middleware(request: Request, call_next):
+    if request.url.path != "/" and not request.url.path.endswith("/"):
+        request.scope["path"] = request.url.path + "/"
+    response = await call_next(request)
+    return response
 
 
 # Exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     return JSONResponse(
-        status_code=500,
-        content={"message": f"An error occurred: {str(exc)}"}
+        status_code=500, content={"message": f"An error occurred: {str(exc)}"}
     )
+
 
 # Lifecycle events
 @app.on_event("startup")
@@ -50,6 +61,7 @@ async def startup():
         print(f"creating tables ...")
         await db.execute(table_sql)
     await seed_data()  # Run seeding after tables are created
+
 
 @app.on_event("shutdown")
 async def shutdown():

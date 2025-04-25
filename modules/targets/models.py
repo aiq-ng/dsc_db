@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
-from typing import Dict, Optional
 from datetime import date
+from typing import Dict, Optional
+
+from pydantic import BaseModel, Field
+
 
 class TargetBase(BaseModel):
     target_name: str = Field(..., max_length=255)
@@ -14,10 +16,14 @@ class TargetBase(BaseModel):
     target_date: date
     metadata: Dict = Field(default_factory=dict)
     flagged: bool = False
-    threat_level: Optional[str] = Field(None, pattern="^(High|Medium|Low)$")  # New field
+    threat_level: Optional[str] = Field(
+        None, pattern="^(High|Medium|Low)$"
+    )  # New field
+
 
 class TargetCreate(TargetBase):
     pass
+
 
 class TargetUpdate(BaseModel):
     target_name: Optional[str] = Field(None, max_length=255)
@@ -31,7 +37,10 @@ class TargetUpdate(BaseModel):
     target_date: date
     metadata: Optional[Dict] = None
     flagged: Optional[bool] = None
-    threat_level: Optional[str] = Field(None, pattern="^(High|Medium|Low)$")  # New field
+    threat_level: Optional[str] = Field(
+        None, pattern="^(High|Medium|Low)$"
+    )  # New field
+
 
 class TargetResponse(TargetBase):
     id: int
