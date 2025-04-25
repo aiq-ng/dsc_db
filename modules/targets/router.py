@@ -40,11 +40,6 @@ async def create_target(
     return new_target
 
 
-@router.get("/{target_id}/")
-async def get_target(target_id: int, current_user=Depends(get_current_user)):
-    return await target_manager.get_target(target_id)
-
-
 @router.get("/")
 async def get_all_targets(
     skip: int = 0, limit: int = 10, current_user=Depends(get_current_user)
@@ -90,6 +85,11 @@ async def search_targets(
     return await target_manager.search_targets(
         target_name, target_number, skip, limit
     )
+
+
+@router.get("/{target_id}/")
+async def get_target(target_id: int, current_user=Depends(get_current_user)):
+    return await target_manager.get_target(target_id)
 
 
 @router.put("/{target_id}/")
