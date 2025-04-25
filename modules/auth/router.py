@@ -30,16 +30,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-@router.post("/login")
+@router.post("/login/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return await auth_manager.login(form_data.username, form_data.password)
 
 
-@router.post("/register")
+@router.post("/register/")
 async def register(request: RegisterRequest):
     return await auth_manager.register(request.email, request.password)
 
 
-@router.get("/me")
+@router.get("/me/")
 async def get_current_user(current_user=Depends(get_current_user)):
     return {"current_user": current_user}
