@@ -15,6 +15,7 @@ services:
       - ./:/app
     networks:
       - app-network
+    restart: always
 
   db:
     image: postgres:17
@@ -28,6 +29,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
+    restart: always
 
 volumes:
   postgres_data:
