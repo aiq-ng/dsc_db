@@ -16,6 +16,7 @@ class TargetManager:
         offence_id: int,
         operator_id: int,
         type: str,
+        type_id,
         origin: str | None,
         target_date: str,
         metadata: dict,
@@ -26,8 +27,8 @@ class TargetManager:
         # ... (validation for offence_id and operator_id unchanged)
         query = """
                 INSERT INTO targets (target_name, file_number, target_number, folder, offence_id, operator_id, 
-                                    type, origin, target_date, metadata, flagged, threat_level)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                                    type, type_id, origin, target_date, metadata, flagged, threat_level)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 RETURNING *
             """
         result = await db.fetchrow(
@@ -39,6 +40,7 @@ class TargetManager:
             offence_id,
             operator_id,
             type,
+            type_id,
             origin,
             target_date,
             json.dumps(metadata),
@@ -52,11 +54,13 @@ class TargetManager:
             SELECT
                 t.id, t.target_name, t.file_number, t.target_number, t.folder, 
                 o.name as offence_name, op.operator_name, 
-                t.type, t.origin, t.target_date, t.metadata, threat_level, t.flagged,
-                t.created_at, t.updated_at
+                COALESCE(rt.name, t.type) as type,
+                t.origin, t.target_date, t.metadata, threat_level,
+                t.flagged, created_at, t.updated_at
             FROM targets t
             LEFT JOIN offences o ON t.offence_id = o.id
             LEFT JOIN operators op ON t.operator_id = op.id
+            LEFT JOIN request_types rt ON t.type_id = rt.id
             WHERE t.id = $1
         """
         target = await db.fetchrow(query, target_id)
@@ -70,11 +74,13 @@ class TargetManager:
             SELECT
                 t.id, t.target_name, t.file_number, t.target_number, t.folder, 
                 o.name as offence_name, op.operator_name, 
-                t.type, t.origin, t.target_date, t.metadata, t.threat_level, t.flagged,
+                COALESCE(rt.name, t.type) as type,
+                t.origin, t.target_date, t.metadata, t.threat_level, t.flagged,
                 t.created_at, t.updated_at
             FROM targets t
             LEFT JOIN offences o ON t.offence_id = o.id
             LEFT JOIN operators op ON t.operator_id = op.id
+            LEFT JOIN request_types rt ON t.type_id = rt.id
             ORDER BY t.created_at DESC
             OFFSET $1 LIMIT $2
             """
@@ -172,11 +178,13 @@ class TargetManager:
             SELECT
                 t.id, t.target_name, t.file_number, t.target_number, t.folder, 
                 o.name as offence_name, op.operator_name, 
-                t.type, t.origin, t.target_date, t.metadata, t.threat_level, t.flagged,  
+                COALESCE(rt.name, t.type) as type,
+                t.origin, t.target_date, t.metadata, t.threat_level, t.flagged,  
                 t.created_at, t.updated_at
             FROM targets t
             LEFT JOIN offences o ON t.offence_id = o.id
             LEFT JOIN operators op ON t.operator_id = op.id
+            LEFT JOIN request_types rt ON t.type_id = rt.id
             WHERE {where_clause}
             ORDER BY t.created_at DESC
             OFFSET ${param_count} LIMIT ${param_count + 1}

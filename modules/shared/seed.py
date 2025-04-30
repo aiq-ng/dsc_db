@@ -1,12 +1,25 @@
-from modules.shared.db import db
 import json
+
+from modules.shared.db import db
 
 # Seed data for offences
 OFFENCES_SEED_DATA = [
-    {"name": "Espionage", "description": "Unauthorized acquisition of sensitive information"},
-    {"name": "Terrorism", "description": "Acts intended to cause fear or harm for political purposes"},
-    {"name": "Sabotage", "description": "Deliberate destruction of property or infrastructure"},
-    {"name": "Cybercrime", "description": "Criminal activities carried out via digital means"},
+    {
+        "name": "Espionage",
+        "description": "Unauthorized acquisition of sensitive information",
+    },
+    {
+        "name": "Terrorism",
+        "description": "Acts intended to cause fear or harm for political purposes",
+    },
+    {
+        "name": "Sabotage",
+        "description": "Deliberate destruction of property or infrastructure",
+    },
+    {
+        "name": "Cybercrime",
+        "description": "Criminal activities carried out via digital means",
+    },
 ]
 
 # Seed data for operators
@@ -15,21 +28,46 @@ OPERATORS_SEED_DATA = [
         "operator_name": "Agent Smith",
         "operator_code": "OP-001",
         "contact_info": {"email": "smith@agency.gov", "phone": "555-0101"},
-        "active": True
+        "active": True,
     },
     {
         "operator_name": "Agent Jones",
         "operator_code": "OP-002",
         "contact_info": {"email": "jones@agency.gov", "phone": "555-0102"},
-        "active": True
+        "active": True,
     },
     {
         "operator_name": "Agent Brown",
         "operator_code": "OP-003",
         "contact_info": {"email": "brown@agency.gov", "phone": "555-0103"},
-        "active": False
+        "active": False,
     },
 ]
+
+# Seed data for request types
+REQUEST_TYPES_SEED_DATA = [
+    {
+        "name": "Person",
+        "description": "Request for information about a person",
+    },
+    {
+        "name": "Organization",
+        "description": "Request for information about an organization",
+    },
+    {
+        "name": "Vehicle",
+        "description": "Request for information about a vehicle",
+    },
+    {
+        "name": "Property",
+        "description": "Request for information about property",
+    },
+    {
+        "name": "Incident",
+        "description": "Request for information about an incident",
+    },
+]
+
 
 async def seed_table_if_empty(table_name: str, seed_data: list, query: str):
     """Seed a table with data if it exists and is empty."""
@@ -41,12 +79,12 @@ async def seed_table_if_empty(table_name: str, seed_data: list, query: str):
         )
     """
     table_exists = await db.fetchrow(table_exists_query, table_name)
-    
+
     if table_exists and table_exists["exists"]:
         # Check row count
         count_query = f"SELECT COUNT(*) FROM {table_name}"
         count_result = await db.fetchrow(count_query)
-        
+
         if count_result and count_result["count"] == 0:
             # Seed the table
             for data in seed_data:
@@ -60,6 +98,7 @@ async def seed_table_if_empty(table_name: str, seed_data: list, query: str):
             print(f"Skipping seeding {table_name}: table is not empty")
     else:
         print(f"Skipping seeding {table_name}: table does not exist")
+
 
 async def seed_data():
     """Run seeding for all tables."""
@@ -75,4 +114,15 @@ async def seed_data():
         INSERT INTO operators (operator_name, operator_code, contact_info, active) 
         VALUES ($1, $2, $3, $4)
     """
-    await seed_table_if_empty("operators", OPERATORS_SEED_DATA, operators_query)
+    await seed_table_if_empty(
+        "operators", OPERATORS_SEED_DATA, operators_query
+    )
+
+    # Seed request types
+    request_types_query = """
+        INSERT INTO request_types (name, description) 
+        VALUES ($1, $2)
+    """
+    await seed_table_if_empty(
+        "request_types", REQUEST_TYPES_SEED_DATA, request_types_query
+    )

@@ -11,7 +11,8 @@ class TargetBase(BaseModel):
     folder: Optional[str] = Field(None, max_length=255)
     offence_id: int
     operator_id: int
-    type: str = Field(..., max_length=100)
+    type: Optional[str] = Field(None, max_length=100)
+    type_id: Optional[int] = None
     origin: Optional[str] = Field(None, max_length=255)
     target_date: date
     metadata: Dict = Field(default_factory=dict)
@@ -33,6 +34,7 @@ class TargetUpdate(BaseModel):
     offence_id: Optional[int] = None
     operator_id: Optional[int] = None
     type: Optional[str] = Field(None, max_length=100)
+    type_id: Optional[int] = None
     origin: Optional[str] = Field(None, max_length=255)
     target_date: date
     metadata: Optional[Dict] = None

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from modules.auth.router import router as auth_router
+from modules.base.router import resource
 from modules.initial_data.router import router as initial_data_router
 from modules.shared.db import close_db_pool, create_db_pool, db
 from modules.shared.schema import TABLES  # Import TABLES from schema.py
@@ -35,6 +36,8 @@ app.include_router(
 )
 
 app.websocket("/ws/targets")(websocket_endpoint)  # Register WebSocket endpoint
+
+app.include_router(resource, tags=["resources"])
 
 
 @app.middleware("http")

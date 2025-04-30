@@ -23,6 +23,7 @@ async def create_target(
         target.offence_id,
         target.operator_id,
         target.type,
+        target.type_id,
         target.origin,
         target.target_date,
         target.metadata,

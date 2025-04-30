@@ -30,6 +30,16 @@ CREATE_OFFENCES_TABLE = """
     CREATE INDEX IF NOT EXISTS idx_offences_name ON offences(name);
 """
 
+CREATE_REQUEST_TYPES_TABLE = """
+    CREATE TABLE IF NOT EXISTS request_types (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        description TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+"""
+
 CREATE_OPERATORS_TABLE = """
     CREATE TABLE IF NOT EXISTS operators (
         id SERIAL PRIMARY KEY,
@@ -52,15 +62,15 @@ CREATE_TARGETS_TABLE = """
         folder VARCHAR(255),
         offence_id INTEGER NOT NULL REFERENCES offences(id) ON DELETE RESTRICT,
         operator_id INTEGER NOT NULL REFERENCES operators(id) ON DELETE RESTRICT,
-        type VARCHAR(100) NOT NULL,
+        type VARCHAR(100),
+        type_id INTEGER,
         origin VARCHAR(255),
         target_date DATE NOT NULL,
         metadata JSONB DEFAULT '{}',
         flagged BOOLEAN DEFAULT FALSE,
         threat_level VARCHAR(50) DEFAULT 'Low' CHECK (threat_level IN ('High', 'Medium', 'Low')),  -- New column
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT chk_type CHECK (type IN ('New', 'Modification', 'Renewal', 'Other'))
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
     CREATE INDEX IF NOT EXISTS idx_targets_file_number ON targets(file_number);
     CREATE INDEX IF NOT EXISTS idx_targets_target_number ON targets(target_number);
@@ -87,7 +97,8 @@ TABLES = [
     CREATE_USERS_TABLE,
     CREATE_USER_PROFILES_TABLE,
     CREATE_OFFENCES_TABLE,
+    CREATE_REQUEST_TYPES_TABLE,
     CREATE_OPERATORS_TABLE,
     CREATE_TARGETS_TABLE,
-    CREATE_SUGGESTIONS_TABLE  # Add this
+    CREATE_SUGGESTIONS_TABLE,  # Add this
 ]

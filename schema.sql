@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS offences (
     );
     CREATE INDEX idx_offences_name ON offences(name);
 
+CREATE TABLE IF NOT EXISTS request_types (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        description TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX idx_request_types_name ON request_types(name);
+
 CREATE TABLE IF NOT EXISTS operators (
         id SERIAL PRIMARY KEY,
         operator_name VARCHAR(255) NOT NULL,
